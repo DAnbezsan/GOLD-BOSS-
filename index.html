@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gold Boss | Acervo Signature Elite</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #000;
+      color: #e5e7eb;
+    }
+    .font-luxury { font-family: 'Cinzel', serif; }
+  </style>
+
+  <!-- 🔑 API KEY DO GEMINI -->
+  <script>
+    window.GEMINI_API_KEY = "gen-lang-client-0803067744";
+  </script>
+
+  <!-- Importmap -->
+  <script type="importmap">
+  {
+    "imports": {
+      "@google/genai": "https://esm.sh/@google/genai"
+    }
+  }
+  </script>
+</head>
+
+<body class="min-h-screen flex items-center justify-center px-4">
+
+  <div class="max-w-xl w-full bg-zinc-900 rounded-xl p-6 shadow-xl">
+    <h1 class="text-3xl text-center mb-4 font-luxury text-yellow-400">
+      Gold Boss AI
+    </h1>
+
+    <textarea
+      id="prompt"
+      class="w-full h-32 p-3 rounded bg-black border border-zinc-700 text-white"
+      placeholder="Digite sua pergunta..."
+    ></textarea>
+
+    <button
+      onclick="gerarResposta()"
+      class="mt-4 w-full py-3 rounded bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
+    >
+      Gerar resposta
+    </button>
+
+    <div
+      id="resposta"
+      class="mt-4 p-3 bg-black border border-zinc-700 rounded text-sm whitespace-pre-wrap"
+    ></div>
+  </div>
+
+  <!-- SCRIPT GEMINI -->
+  <script type="module">
+    import { GoogleGenerativeAI } from "@google/genai";
+
+    async function gerarResposta() {
+      const prompt = document.getElementById("prompt").value;
+      const output = document.getElementById("resposta");
+
+      if (!prompt) {
+        output.textContent = "Digite algo primeiro.";
+        return;
+      }
+
+      output.textContent = "Pensando...";
+
+      try {
+        const genAI = new GoogleGenerativeAI(window.GEMINI_API_KEY);
+
+        const model = genAI.getGenerativeModel({
+          model: "gemini-1.5-flash"
+        });
+
+        const result = await model.generateContent(prompt);
+        output.textContent = result.response.text();
+      } catch (err) {
+        output.textContent = "Erro ao conectar com o Gemini.";
+        console.error(err);
+      }
+    }
+
+    window.gerarResposta = gerarResposta;
+  </script>
+
+</body>
+</html>
