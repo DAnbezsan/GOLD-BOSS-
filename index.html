@@ -1,91 +1,110 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gold Boss | Acervo Signature Elite</title>
-    
-    <!-- Dependências Externas -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Gold Boss | Acervo Signature Elite</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        @keyframes shimmer { 100% { transform: translateX(100%); } }
-        @keyframes fade-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #000;
-            color: #d4d4d8;
-            margin: 0;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-        
-        .font-luxury { font-family: 'Cinzel', serif; }
-        
-        .bg-gold-gradient {
-            background: linear-gradient(135deg, #D4AF37 0%, #F9E498 50%, #B8860B 100%);
-        }
-        
-        .ambient-glow {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-            background: 
-                radial-gradient(at 0% 0%, rgba(212, 175, 55, 0.07) 0%, transparent 40%),
-                radial-gradient(at 100% 50%, rgba(184, 134, 11, 0.08) 0%, transparent 40%),
-                radial-gradient(at 0% 100%, rgba(212, 175, 55, 0.07) 0%, transparent 40%);
-        }
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-        .side-light-beam {
-            position: fixed;
-            top: 0; bottom: 0; width: 1px;
-            background: linear-gradient(to bottom, transparent, rgba(212, 175, 55, 0.2), transparent);
-            z-index: 1;
-        }
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
-        .vignette-overlay {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 2;
-            box-shadow: inset 0 0 150px rgba(0,0,0,0.9);
-        }
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #000;
+      color: #d4d4d8;
+    }
+    .font-luxury { font-family: 'Cinzel', serif; }
+    .bg-gold-gradient {
+      background: linear-gradient(135deg, #D4AF37, #F9E498, #B8860B);
+    }
+  </style>
 
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .animate-fade-up { animation: fade-up 0.8s ease-out forwards; }
-        
-        .image-render-quality {
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: crisp-edges;
-        }
-    </style>
+  <!-- 🔑 API KEY DO GEMINI -->
+  <script>
+    window.GEMINI_API_KEY = "COLE_SUA_API_KEY_AQUI";
+  </script>
 
-    <script>
-        window.process = {
-            env: {
-                API_KEY: ""gen-lang-client-0803067744" 
-            }
-        };
-    </script>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.38.0"
+  <!-- Importmap -->
+  <script type="importmap">
+  {
+    "imports": {
+      "@google/genai": "https://esm.sh/@google/genai"
+    }
   }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
+  </script>
 </head>
-<body>
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+
+<body class="min-h-screen flex items-center justify-center px-4">
+
+  <main class="max-w-2xl w-full bg-zinc-900 rounded-2xl p-8 shadow-2xl">
+    
+    <h1 class="text-4xl text-center font-luxury text-yellow-400 mb-2">
+      Gold Boss
+    </h1>
+    <p class="text-center text-zinc-400 mb-6">
+      Acervo Signature Elite
+    </p>
+
+    <!-- INPUT -->
+    <textarea
+      id="prompt"
+      class="w-full h-32 p-4 rounded-xl bg-black border border-zinc-700 text-white focus:outline-none"
+      placeholder="Ex: Crie uma descrição luxuosa para um anel de ouro 18k com diamantes."
+    ></textarea>
+
+    <!-- BOTÃO -->
+    <button
+      onclick="gerarDescricao()"
+      class="mt-4 w-full py-3 rounded-xl bg-gold-gradient text-black font-semibold hover:opacity-90 transition"
+    >
+      Gerar descrição com IA
+    </button>
+
+    <!-- RESPOSTA -->
+    <div
+      id="resposta"
+      class="mt-6 p-4 bg-black border border-zinc-700 rounded-xl text-sm whitespace-pre-wrap min-h-[80px]"
+    ></div>
+
+  </main>
+
+  <!-- SCRIPT GEMINI -->
+  <script type="module">
+    import { GoogleGenerativeAI } from "@google/genai";
+
+    async function gerarDescricao() {
+      const prompt = document.getElementById("prompt").value;
+      const resposta = document.getElementById("resposta");
+
+      if (!prompt) {
+        resposta.textContent = "Digite uma solicitação primeiro.";
+        return;
+      }
+
+      resposta.textContent = "Gerando descrição premium...";
+
+      try {
+        const genAI = new GoogleGenerativeAI(window.GEMINI_API_KEY);
+
+        const model = genAI.getGenerativeModel({
+          model: "gemini-1.5-flash"
+        });
+
+        const result = await model.generateContent(prompt);
+        resposta.textContent = result.response.text();
+
+      } catch (err) {
+        resposta.textContent = "Erro ao conectar com a IA.";
+        console.error(err);
+      }
+    }
+
+    window.gerarDescricao = gerarDescricao;
+  </script>
+
 </body>
 </html>
